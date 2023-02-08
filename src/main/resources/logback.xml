@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+     <appender name="async-console" class="ch.qos.logback.classic.AsyncAppender">
+      <appender-ref ref="console" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="async-console" />
+    </root>
+
+</configuration>

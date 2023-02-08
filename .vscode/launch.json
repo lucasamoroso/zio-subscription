@@ -1,0 +1,21 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    // Main class configuration
+    {
+      "type": "scala",
+      "request": "launch",
+      // configuration name visible for the user
+      "name": "Launch subscription app",
+      // full name of the class to run
+      "mainClass": "com.lamoroso.example.Main",
+      // optional arguments for the main class
+      "args": [],
+      // optional jvm properties to use
+      "jvmOptions": []
+    }
+  ]
+}
