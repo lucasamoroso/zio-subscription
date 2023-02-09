@@ -20,7 +20,11 @@ My idea is just to learn more about ZIO, I'm using as a guideline [zio-petclinic
     ```shell
     reStart
     ```
-4. Inside sbt, stop the application
+4. Visit the swagger page to list the endpoints 
+    ```shell
+    http://localhost:8080/docs
+    ```
+5. Inside sbt, stop the application
     ```shell
     reStop
     ```
