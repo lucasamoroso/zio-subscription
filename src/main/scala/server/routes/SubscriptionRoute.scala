@@ -12,7 +12,7 @@ import java.sql.SQLException
 
 import model.Subscription
 import model.api.CreateSubscription
-import model.api.error.UserError
+import model.error.SerDeError
 import server.ServerUtils.*
 import services.SubscriptionService
 
@@ -24,8 +24,8 @@ final case class SubscriptionRoute(service: SubscriptionService):
         createSubscription <- parseBody[CreateSubscription](req)
         subscription <-
           service.create(createSubscription)
-      } yield Response.json(subscription.toJson)).catchSome { case userError: UserError =>
-        ZIO.succeed(Response.json(userError.toJson).setStatus(Status.BadRequest))
+      } yield Response.json(subscription.toJson)).catchSome { case serdeError: SerDeError =>
+        ZIO.succeed(Response.json(serdeError.toJson).setStatus(Status.BadRequest))
       }
     }
   }

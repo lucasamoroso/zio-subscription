@@ -7,8 +7,8 @@ import zio.json.*
 
 import zhttp.http.Request
 
-import model.api.error.UserError
-import model.api.error.UserError.*
+import model.error.SerDeError
+import model.error.SerDeError.*
 
 /**
  * ServerUtils houses helper functions for parsing various elements of the API
@@ -24,7 +24,7 @@ object ServerUtils:
    * an A from the request's string body. In the case of a failure we are
    * returning a custom AppError type
    */
-  def parseBody[A: JsonDecoder](request: Request): IO[UserError, A] =
+  def parseBody[A: JsonDecoder](request: Request): IO[SerDeError, A] =
     for {
       body <- request.body.asString
                 .logError(s"The body ${request.body} provided by the user was empty")
