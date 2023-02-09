@@ -12,7 +12,7 @@ object SerDeError:
       extends SerDeError(message)
 
   /**
-   * Derives a JSON codec for the UserError type allowing it to be
+   * Derives a JSON codec for the SerDeError type allowing it to be
    * (de)serialized.
    */
   implicit val codec: JsonCodec[SerDeError] =

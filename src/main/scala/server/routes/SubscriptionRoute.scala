@@ -8,11 +8,9 @@ import zio.json.*
 
 import zhttp.http.*
 
-import java.sql.SQLException
-
 import model.Subscription
 import model.api.CreateSubscription
-import model.error.SerDeError
+import model.error.*
 import server.ServerUtils.*
 import services.SubscriptionService
 
@@ -24,8 +22,11 @@ final case class SubscriptionRoute(service: SubscriptionService):
         createSubscription <- parseBody[CreateSubscription](req)
         subscription <-
           service.create(createSubscription)
-      } yield Response.json(subscription.toJson)).catchSome { case serdeError: SerDeError =>
-        ZIO.succeed(Response.json(serdeError.toJson).setStatus(Status.BadRequest))
+      } yield Response.json(subscription.toJson)).catchSome {
+        case serdeError: SerDeError =>
+          ZIO.succeed(Response.json(serdeError.toJson).setStatus(Status.BadRequest))
+        case serviceError: ServiceError =>
+          ZIO.succeed(Response.json(serviceError.toJson).setStatus(Status.InternalServerError))
       }
     }
   }
