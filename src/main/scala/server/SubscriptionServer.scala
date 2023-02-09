@@ -1,62 +1,75 @@
 package com.lamoroso.example
 package server
 
+import zio.*
 import zio.Random
-import zio.ZIO
 import zio.ZLayer
+import zio.http.App
+import zio.http.{Server, ServerConfig}
 
-import zhttp.http.*
-import zhttp.http.middleware.HttpMiddleware
-import zhttp.service.Server
+import sttp.tapir.model.ServerRequest
+import sttp.tapir.server.interceptor.RequestInterceptor.RequestResultEffectTransform
+import sttp.tapir.server.interceptor.{RequestInterceptor, RequestResult}
+import sttp.tapir.server.ziohttp.ZioHttpInterpreter
+import sttp.tapir.server.ziohttp.ZioHttpServerOptions
+import sttp.tapir.swagger.bundle.SwaggerInterpreter
+import sttp.tapir.ztapir.*
 
-import scala.annotation.migration
-
-import config.AppConfig
+import com.lamoroso.example.config.AppConfig
+import com.lamoroso.example.server.endpoints.SubscriptionEndpoints
+import com.lamoroso.example.server.routes.SubscriptionRoute
+import com.lamoroso.example.services.SubscriptionService
 import database.Migrations
-import server.routes.SubscriptionRoute
+import server.endpoints.SubscriptionEndpoints.*
+import server.routes.SubscriptionRoute.createSubscriptionServerEndpoint
 
 final case class SubscriptionServer(
   config: AppConfig,
-  subscriptionRoute: SubscriptionRoute,
   migrations: Migrations
 ):
-  val allRoutes: HttpApp[Any, Throwable] = subscriptionRoute.routes
+  type RoutesEnv = SubscriptionService
 
   //TODO: Add middleware to:
   // - log error responses and defects
 
-  /**
-   * Logs the requests made to the server.
-   *
-   * It also adds a request ID to the logging context, so any further logging
-   * that occurs in the handler can be associated with the same request.
-   *
-   * For more information on the logging, see:
-   * https://zio.github.io/zio-logging/
-   */
-  val loggingMiddleware: HttpMiddleware[Any, Nothing] =
-    new HttpMiddleware[Any, Nothing] {
-      override def apply[R1 <: Any, E1 >: Nothing](
-        http: Http[R1, E1, Request, Response]
-      ): Http[R1, E1, Request, Response] =
-        Http.fromOptionFunction[Request] { request =>
-          Random.nextUUID.flatMap { requestId =>
-            ZIO.logAnnotate("rid", requestId.toString) {
-              http(request)
-            }
-          }
+  lazy val requestIdInterceptor = RequestInterceptor.transformResultEffect(new RequestResultEffectTransform[Task] {
+    override def apply[B](request: ServerRequest, result: Task[RequestResult[B]]): Task[RequestResult[B]] =
+      Random.nextUUID.flatMap { requestId =>
+        ZIO.logAnnotate("rid", requestId.toString) {
+          result
         }
-    }
+      }
+  })
 
-  def start: ZIO[Any, Throwable, Unit] =
+  //Docs
+  lazy val swaggerEndpoints =
+    SwaggerInterpreter()
+      .fromEndpoints[Task](SubscriptionEndpoints.all, "Subscriptions app", "1.0")
+
+  //  Build all server routes
+  lazy val routes: App[RoutesEnv] =
+    ZioHttpInterpreter(
+      ZioHttpServerOptions.customiseInterceptors.prependInterceptor(requestIdInterceptor).options
+    )
+      .toApp(
+        SubscriptionRoute.all.map(_.widen[RoutesEnv])
+          ++ swaggerEndpoints.map(_.widen[RoutesEnv])
+      )
+
+  def start =
     for {
       _ <- ZIO.logInfo(s"Starting migrations ...")
       _ <- migrations.migrate
-      _ <- ZIO.logInfo(s"Starting server at: http://localhost:${config.server.port}/ ...")
+      _ <- ZIO.logInfo(s"Starting docs service at: http://localhost:${config.server.port}/docs ...")
       _ <- Server
-             .start(config.server.port, allRoutes @@ loggingMiddleware)
+             .serve(routes)
     } yield ()
 
 object SubscriptionServer:
 
   val layer = ZLayer.fromFunction(SubscriptionServer.apply _)
+
+  val serverConfigLayer =
+    ZLayer.fromZIO(
+      ZIO.service[AppConfig].map(config => ServerConfig.default.port(config.server.port))
+    )

@@ -5,6 +5,8 @@ import zio.UIO
 
 import zio.json.*
 
+import sttp.tapir.Schema
+
 import api.CreateSubscription
 
 case class Subscription(id: SubscriptionId, name: String, email: String)
@@ -19,3 +21,8 @@ object Subscription:
    */
   implicit val codec: JsonCodec[Subscription] =
     DeriveJsonCodec.gen[Subscription]
+
+  /**
+   * Endpoint documentation with tapir
+   */
+  implicit val schema: Schema[Subscription] = Schema.derived[Subscription]

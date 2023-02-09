@@ -1,9 +1,12 @@
 package com.lamoroso.example
 
 import zio.*
+import zio.http.Server
+import zio.http.ServerConfig
 
 import zio.config.*
 
+import zio.logging.LogFormat
 import zio.logging.backend.SLF4J
 import zio.logging.removeDefaultLoggers
 
@@ -22,12 +25,13 @@ object Main extends ZIOAppDefault:
       .serviceWithZIO[SubscriptionServer](_.start)
       .provide(
         SubscriptionServer.layer,
-        SubscriptionRoute.layer,
         SubscriptionRepository.layer,
         SubscriptionService.layer,
         Migrations.layer,
         QuillContext.dataSourceLayer,
-        SLF4J.slf4j,
+        SubscriptionServer.serverConfigLayer,
+        Server.live,
         removeDefaultLoggers,
+        SLF4J.slf4j,
         configLayer_(AppConfig.layer)
       )

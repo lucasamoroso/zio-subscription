@@ -8,38 +8,34 @@ import zio.json.*
 
 import zhttp.http.*
 
+import sttp.tapir.ztapir.*
+
+import com.lamoroso.example.server.endpoints.SubscriptionEndpoints.*
 import model.Subscription
 import model.api.CreateSubscription
 import model.error.*
-import server.ServerUtils.*
 import services.SubscriptionService
-
-final case class SubscriptionRoute(service: SubscriptionService):
-  val routes: Http[Any, Throwable, Request, Response] = Http.collectZIO[Request] {
-    // Create a new  subscription and return it as JSON.
-    case req @ Method.POST -> !! / "subscriptions" => {
-      (for {
-        createSubscription <- parseBody[CreateSubscription](req)
-        subscription <-
-          service.create(createSubscription)
-      } yield Response.json(subscription.toJson)).catchSome {
-        case serdeError: SerDeError =>
-          ZIO.succeed(Response.json(serdeError.toJson).setStatus(Status.BadRequest))
-        case serviceError: ServiceError =>
-          ZIO.succeed(Response.json(serviceError.toJson).setStatus(Status.InternalServerError))
-      }
-    }
-    //Return all subscriptions
-    case Method.GET -> !! / "subscriptions" =>
-      service
-        .list()
-        .map(subscriptions => Response.json(subscriptions.toJson))
-        .catchSome { case serviceError: ServiceError =>
-          ZIO.succeed(Response.json(serviceError.toJson).setStatus(Status.InternalServerError))
-        }
-
-  }
 
 object SubscriptionRoute:
 
-  val layer = ZLayer.fromFunction(SubscriptionRoute.apply _)
+  //Must be a lazy val
+  lazy val all = List(
+    createSubscriptionServerEndpoint,
+    listSubscriptionsServerEndpoint
+  )
+
+  val createSubscriptionServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
+    createSubscriptionEndpoint.zServerLogic { createSubscription =>
+      (for {
+        service      <- ZIO.service[SubscriptionService]
+        subscription <- service.create(createSubscription)
+      } yield subscription)
+    }
+
+  val listSubscriptionsServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
+    listSubscriptionsEndpoint.zServerLogic { _ =>
+      (for {
+        service       <- ZIO.service[SubscriptionService]
+        subscriptions <- service.list()
+      } yield subscriptions)
+    }

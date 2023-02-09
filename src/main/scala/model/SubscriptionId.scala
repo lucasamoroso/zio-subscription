@@ -5,9 +5,11 @@ import zio._
 
 import zio.json._
 
+import sttp.tapir.Schema
+
 import java.util.UUID
 
-final case class SubscriptionId(id: UUID) extends AnyVal
+final case class SubscriptionId(id: UUID)
 
 object SubscriptionId:
 
@@ -16,3 +18,8 @@ object SubscriptionId:
 
   implicit val codec: JsonCodec[SubscriptionId] =
     JsonCodec[UUID].transform(SubscriptionId(_), _.id)
+
+  /**
+   * Endpoint documentation with tapir
+   */
+  implicit val schema: Schema[SubscriptionId] = Schema.derived[SubscriptionId]
