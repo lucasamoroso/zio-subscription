@@ -23,7 +23,6 @@ final case class SubscriptionServer(
   val allRoutes: HttpApp[Any, Throwable] = subscriptionRoute.routes
 
   //TODO: Add middleware to:
-  // - log requests ids
   // - log error responses and defects
 
   /**
