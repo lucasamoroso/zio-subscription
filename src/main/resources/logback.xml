@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-     <appender name="async-console" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="async-console" class="ch.qos.logback.classic.AsyncAppender">
       <appender-ref ref="console" />
     </appender>
 
