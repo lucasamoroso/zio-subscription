@@ -6,6 +6,12 @@ This is a simple application that manages subscriptions requests:
 
 My idea is just to learn more about ZIO, I'm using as a guideline [zio-petclinic](https://github.com/zio/zio-petclinic)
 
+This app uses:
+  [ZIO Http](https://github.com/zio/zio-http) for the HTTP server 
+  [Tapir ZIO](https://github.com/softwaremill/tapir) for endpoints and endpoint documentation
+  [ZIO JSON](https://github.com/zio/zio-json) for JSON serialization
+  [ZIO Quill](https://github.com/zio/zio-quill) for SQL queries
+  [ZIO Config](https://github.com/zio/zio-config) for app configuration and documentation
 ## Run the application
 
 1. Start the services 
