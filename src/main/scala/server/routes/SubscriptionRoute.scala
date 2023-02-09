@@ -8,17 +8,28 @@ import zio.json.*
 
 import zhttp.http.*
 
-import model.Subscription
+import java.sql.SQLException
 
-final class SubscriptionRoute:
+import model.Subscription
+import model.api.CreateSubscription
+import model.api.error.UserError
+import server.ServerUtils.*
+import services.SubscriptionService
+
+final case class SubscriptionRoute(service: SubscriptionService):
   val routes: Http[Any, Throwable, Request, Response] = Http.collectZIO[Request] {
-    // Gets all the subscriptions from the database and returns them as JSON.
-    case Method.GET -> !! / "subscriptions" =>
-      ZIO.attempt(Response.json(Subscription("", "", 1).toJson))
+    // Create a new  subscription and return it as JSON.
+    case req @ Method.POST -> !! / "subscriptions" => {
+      (for {
+        createSubscription <- parseBody[CreateSubscription](req)
+        subscription <-
+          service.create(createSubscription)
+      } yield Response.json(subscription.toJson)).catchSome { case userError: UserError =>
+        ZIO.succeed(Response.json(userError.toJson).setStatus(Status.BadRequest))
+      }
+    }
   }
 
 object SubscriptionRoute:
 
-  def mk() = new SubscriptionRoute()
-
-  val layer = ZLayer.fromFunction(SubscriptionRoute.mk _)
+  val layer = ZLayer.fromFunction(SubscriptionRoute.apply _)

@@ -1,11 +1,18 @@
 package com.lamoroso.example
 package model
 
+import zio.UIO
+
 import zio.json.*
 
-case class Subscription(name: String, mail: String, age: Int)
+import api.CreateSubscription
+
+case class Subscription(id: SubscriptionId, name: String, email: String)
 
 object Subscription:
+  def from(createSubscription: CreateSubscription): UIO[Subscription] =
+    SubscriptionId.random.map(id => Subscription(id, createSubscription.name, createSubscription.email))
+
   /**
    * Derives a JSON codec for the Subscription type allowing it to be
    * (de)serialized.

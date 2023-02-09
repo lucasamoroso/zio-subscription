@@ -5,10 +5,11 @@ import zio.config.*
 import zio.config.magnolia.{describe, descriptor}
 import zio.config.typesafe.TypesafeConfigSource
 
-import config.ServerConfig
 import java.io.File
 
-final case class AppConfig(server: ServerConfig)
+import config.{DatabaseConfig, ServerConfig}
+
+final case class AppConfig(server: ServerConfig, database: DatabaseConfig)
 
 object AppConfig:
   val layer: ConfigDescriptor[AppConfig] = {

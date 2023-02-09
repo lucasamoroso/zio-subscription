@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+
+  db:
+    container_name: subscriptions-db
+    image: postgres:14.6
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: subscription-app
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: postgres
