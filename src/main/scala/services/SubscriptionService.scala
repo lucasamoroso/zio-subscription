@@ -16,6 +16,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
   def create(createSubscription: CreateSubscription): ZIO[Any, DatabaseError, Subscription] =
     for {
       subscription <- Subscription.from(createSubscription)
+      _            <- ZIO.logInfo(s"Creating subscription ${subscription.id}")
       _ <- repository
              .create(subscription)
              .logError(s"There was an error on attempt to create subscription ${subscription.id}")
@@ -23,10 +24,11 @@ final case class SubscriptionService(repository: SubscriptionRepository):
     } yield (subscription)
 
   def list(): ZIO[Any, DatabaseError, List[Subscription]] =
-    repository
-      .list()
-      .logError(s"There was an error on attempt to list subscriptions")
-      .mapError(_ => DatabaseError())
+    ZIO.logInfo(s"Listing all subscriptions ") *>
+      repository
+        .list()
+        .logError(s"There was an error on attempt to list subscriptions")
+        .mapError(_ => DatabaseError())
 
 object SubscriptionService:
 
