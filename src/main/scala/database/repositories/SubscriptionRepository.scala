@@ -24,6 +24,10 @@ final case class SubscriptionRepository(dataSource: DataSource):
       _ <- ZIO.logInfo(s"Subscription ${subscription.id} saved")
     } yield ()
 
+  def list(): ZIO[Any, SQLException, List[Subscription]] =
+    run(query[Subscription])
+      .provideEnvironment(ZEnvironment(dataSource))
+
 object SubscriptionRepository:
 
   val layer = ZLayer.fromFunction(SubscriptionRepository.apply _)

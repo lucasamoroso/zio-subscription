@@ -22,6 +22,12 @@ final case class SubscriptionService(repository: SubscriptionRepository):
              .mapError(_ => DatabaseError())
     } yield (subscription)
 
+  def list(): ZIO[Any, DatabaseError, List[Subscription]] =
+    repository
+      .list()
+      .logError(s"There was an error on attempt to list subscriptions")
+      .mapError(_ => DatabaseError())
+
 object SubscriptionService:
 
   val layer = ZLayer.fromFunction(SubscriptionService.apply _)

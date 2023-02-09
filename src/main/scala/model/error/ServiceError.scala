@@ -8,6 +8,9 @@ sealed trait ServiceError(message: String) extends Throwable
 object ServiceError:
   final case class DatabaseError(message: String = "There was an error processing the query")
       extends ServiceError(message)
+  object DatabaseError:
+    implicit val codec: JsonCodec[DatabaseError] =
+      DeriveJsonCodec.gen[DatabaseError]
 
   /**
    * Derives a JSON codec for the SerDeError type allowing it to be

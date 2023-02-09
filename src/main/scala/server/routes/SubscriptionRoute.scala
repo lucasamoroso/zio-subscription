@@ -29,6 +29,15 @@ final case class SubscriptionRoute(service: SubscriptionService):
           ZIO.succeed(Response.json(serviceError.toJson).setStatus(Status.InternalServerError))
       }
     }
+    //Return all subscriptions
+    case Method.GET -> !! / "subscriptions" =>
+      service
+        .list()
+        .map(subscriptions => Response.json(subscriptions.toJson))
+        .catchSome { case serviceError: ServiceError =>
+          ZIO.succeed(Response.json(serviceError.toJson).setStatus(Status.InternalServerError))
+        }
+
   }
 
 object SubscriptionRoute:
