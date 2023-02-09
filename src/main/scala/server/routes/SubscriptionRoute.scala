@@ -6,8 +6,6 @@ import zio.*
 
 import zio.json.*
 
-import zhttp.http.*
-
 import sttp.tapir.ztapir.*
 
 import com.lamoroso.example.server.endpoints.SubscriptionEndpoints.*
