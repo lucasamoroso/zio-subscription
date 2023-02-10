@@ -9,6 +9,7 @@ import zio.http.{Server, ServerConfig}
 
 import sttp.tapir.model.ServerRequest
 import sttp.tapir.server.interceptor.RequestInterceptor.RequestResultEffectTransform
+import sttp.tapir.server.interceptor.decodefailure.DefaultDecodeFailureHandler
 import sttp.tapir.server.interceptor.{RequestInterceptor, RequestResult}
 import sttp.tapir.server.ziohttp.ZioHttpInterpreter
 import sttp.tapir.server.ziohttp.ZioHttpServerOptions
@@ -41,6 +42,14 @@ final case class SubscriptionServer(
       }
   })
 
+  val decodeFailureHandler = DefaultDecodeFailureHandler.default.copy(
+    respond = DefaultDecodeFailureHandler.respond(
+      _,
+      badRequestOnPathErrorIfPathShapeMatches = true,
+      badRequestOnPathInvalidIfPathShapeMatches = true
+    )
+  )
+
   //Docs
   lazy val swaggerEndpoints =
     SwaggerInterpreter()
@@ -49,7 +58,10 @@ final case class SubscriptionServer(
   //  Build all server routes
   lazy val routes: App[RoutesEnv] =
     ZioHttpInterpreter(
-      ZioHttpServerOptions.customiseInterceptors.prependInterceptor(requestIdInterceptor).options
+      ZioHttpServerOptions.customiseInterceptors
+        .prependInterceptor(requestIdInterceptor)
+        .decodeFailureHandler(decodeFailureHandler)
+        .options
     )
       .toApp(
         SubscriptionRoute.all.map(_.widen[RoutesEnv])
