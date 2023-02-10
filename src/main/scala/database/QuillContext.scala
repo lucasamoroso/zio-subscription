@@ -53,49 +53,16 @@ object QuillContext extends PostgresZioJdbcContext(SnakeCase):
   implicit val encodeUUID: MappedEncoding[UUID, String] = MappedEncoding[UUID, String](_.toString)
   implicit val decodeUUID: MappedEncoding[String, UUID] = MappedEncoding[String, UUID](UUID.fromString(_))
 
-  implicit val encodeSubscriptionId: MappedEncoding[SubscriptionId, String] =
-    MappedEncoding[SubscriptionId, String](_.value)
+  implicit val encodeSubscriptionIdUUID: MappedEncoding[SubscriptionId, UUID] =
+    MappedEncoding[SubscriptionId, UUID](v => UUID.fromString(v.value))
 
-  implicit val decodeSubscriptionId: MappedEncoding[String, SubscriptionId] =
-    MappedEncoding[String, SubscriptionId] { uuid =>
+  implicit val decodeSubscriptionIdUUID: MappedEncoding[UUID, SubscriptionId] =
+    MappedEncoding[UUID, SubscriptionId] { uuid =>
       SubscriptionId.from(uuid) match
         case Success(id)        => id
         case Failure(exception) => throw exception
     }
 
-  // implicit val encodeSubscriptionIdUUID: MappedEncoding[SubscriptionId, UUID] =
-  //   MappedEncoding[SubscriptionId, UUID](v => UUID.fromString(v.value))
-
-  // implicit val decodeSubscriptionIdUUID: MappedEncoding[UUID, SubscriptionId] =
-  //   MappedEncoding[UUID, SubscriptionId] { uuid =>
-  //     SubscriptionId.from(uuid) match
-  //       case Success(id)        => id
-  //       case Failure(exception) => throw exception
-  //   }
-
-  // implicit val encodeSubscriptionIdIronUUID: MappedEncoding[IronType[String, ValidUUID], UUID] =
-  //   MappedEncoding[IronType[String, ValidUUID], UUID](v => UUID.fromString(v))
-
-  // implicit val decodeSubscriptionIdIronUUID: MappedEncoding[UUID, IronType[String, ValidUUID]] =
-  //   MappedEncoding[UUID, IronType[String, ValidUUID]] { uuid =>
-  //     uuid.toString().refine
-  //   }
-
-  // implicit val enc: MappedEncoding[SubscriptionId, IronType[String, ValidUUID]] =
-  //   MappedEncoding[SubscriptionId, IronType[String, ValidUUID]](_.value)
-
-  // implicit val dec: MappedEncoding[IronType[String, ValidUUID], SubscriptionId] =
-  //   MappedEncoding[IronType[String, ValidUUID], SubscriptionId] { uuid =>
-  //     SubscriptionId(uuid)
-  //   }
-
-  // implicit val enc1: MappedEncoding[IronType[String, ValidUUID], String] =
-  //   MappedEncoding[IronType[String, ValidUUID], String](v => UUID.fromString(v).toString())
-
-  // implicit val dec1: MappedEncoding[String, IronType[String, ValidUUID]] =
-  //   MappedEncoding[String, IronType[String, ValidUUID]] { uuid =>
-  //     uuid.refine
-  //   }
   implicit val nameEncoder: MappedEncoding[IronType[String, Name], String] =
     MappedEncoding[IronType[String, Name], String](a => a)
 
