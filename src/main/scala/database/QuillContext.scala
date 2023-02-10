@@ -5,6 +5,7 @@ import zio._
 
 import zio.config.*
 
+import io.getquill.MappedEncoding
 import io.getquill.context.ZioJdbc.DataSourceLayer
 import io.getquill.{PostgresZioJdbcContext, SnakeCase}
 
@@ -16,10 +17,12 @@ import com.typesafe.config.ConfigFactory
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 import java.util.Properties
+import java.util.UUID
 
 import javax.sql.DataSource
 
 import com.lamoroso.example.config.{AppConfig, DatabaseConfig}
+import com.lamoroso.example.model.SubscriptionId
 
 object QuillContext extends PostgresZioJdbcContext(SnakeCase):
 
@@ -41,3 +44,11 @@ object QuillContext extends PostgresZioJdbcContext(SnakeCase):
       dataSource <- dataSourceFrom(dbConfig)
     } yield DataSourceLayer.fromDataSource(dataSource)
   }.flatten
+
+  implicit val encodeUUID: MappedEncoding[UUID, String] = MappedEncoding[UUID, String](_.toString)
+  implicit val decodeUUID: MappedEncoding[String, UUID] = MappedEncoding[String, UUID](UUID.fromString(_))
+
+  implicit val encodeUserId: MappedEncoding[SubscriptionId, UUID] =
+    MappedEncoding[SubscriptionId, UUID](_.id)
+  implicit val decodeUserId: MappedEncoding[UUID, SubscriptionId] =
+    MappedEncoding[UUID, SubscriptionId](as => SubscriptionId(as))

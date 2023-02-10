@@ -14,6 +14,7 @@ import javax.sql.DataSource
 
 import database.QuillContext
 import model.Subscription
+import model.SubscriptionId
 
 final case class SubscriptionRepository(dataSource: DataSource):
   import QuillContext.*
@@ -27,6 +28,11 @@ final case class SubscriptionRepository(dataSource: DataSource):
   def list(): ZIO[Any, SQLException, List[Subscription]] =
     run(query[Subscription])
       .provideEnvironment(ZEnvironment(dataSource))
+
+  def get(subscriptionId: SubscriptionId): ZIO[Any, SQLException, Option[Subscription]] =
+    run(query[Subscription].filter(_.id == lift(subscriptionId)))
+      .provideEnvironment(ZEnvironment(dataSource))
+      .map(_.headOption)
 
 object SubscriptionRepository:
 
