@@ -12,7 +12,7 @@ import api.CreateSubscription
 import io.github.iltotore.iron.zioJson.given
 import model.RefinedTypes.*
 
-case class Subscription(id: SubscriptionId, name: Name, email: String)
+case class Subscription(id: SubscriptionId, name: Name, email: Email)
 
 object Subscription:
   def from(createSubscription: CreateSubscription): UIO[Subscription] =

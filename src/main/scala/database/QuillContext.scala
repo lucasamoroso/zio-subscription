@@ -64,7 +64,13 @@ object QuillContext extends PostgresZioJdbcContext(SnakeCase):
     }
 
   implicit val nameEncoder: MappedEncoding[Name, String] =
-    MappedEncoding[Name, String](a => a)
+    MappedEncoding[Name, String](identity)
 
   implicit val nameDecoder: MappedEncoding[String, Name] =
-    MappedEncoding[String, Name](a => a.refine)
+    MappedEncoding[String, Name](_.refine)
+
+  implicit val emailEncoder: MappedEncoding[Email, String] =
+    MappedEncoding[Email, String](identity)
+
+  implicit val emailDecoder: MappedEncoding[String, Email] =
+    MappedEncoding[String, Email](_.refine)

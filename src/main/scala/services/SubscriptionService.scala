@@ -57,7 +57,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
   def update(
     subscriptionId: SubscriptionId,
     name: Name,
-    email: String
+    email: Email
   ): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
     for {
       _ <- ZIO.logInfo(s"Updating subscription ${subscriptionId}")

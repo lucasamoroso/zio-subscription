@@ -6,6 +6,14 @@ import io.github.iltotore.iron.constraint.all.*
 import io.github.iltotore.iron.zioJson.given
 
 object RefinedTypes:
-  type NameConstraint = (Alphanumeric & MinLength[3] & MaxLength[20]) DescribedAs
+
+  type Name  = String :| ValidName
+  type Email = String :| ValidEmail
+
+  private type ValidName = (Alphanumeric & MinLength[3] & MaxLength[20]) DescribedAs
     "Name should be alphanumeric and have a length between 3 and 20"
-  type Name = String :| NameConstraint
+
+  private type ValidEmail =
+    Match[
+      "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
+    ] DescribedAs "Should be a valid email"
