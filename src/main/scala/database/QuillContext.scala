@@ -23,10 +23,10 @@ import java.util.UUID
 
 import javax.sql.DataSource
 
-import com.lamoroso.example.config.{AppConfig, DatabaseConfig}
-import com.lamoroso.example.model.SubscriptionId
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
+
+import com.lamoroso.example.config.{AppConfig, DatabaseConfig}
 import model.RefinedTypes.*
 
 object QuillContext extends PostgresZioJdbcContext(SnakeCase):
@@ -54,14 +54,10 @@ object QuillContext extends PostgresZioJdbcContext(SnakeCase):
   implicit val decodeUUID: MappedEncoding[String, UUID] = MappedEncoding[String, UUID](UUID.fromString(_))
 
   implicit val encodeSubscriptionIdUUID: MappedEncoding[SubscriptionId, UUID] =
-    MappedEncoding[SubscriptionId, UUID](v => UUID.fromString(v.value))
+    MappedEncoding[SubscriptionId, UUID](v => UUID.fromString(v))
 
   implicit val decodeSubscriptionIdUUID: MappedEncoding[UUID, SubscriptionId] =
-    MappedEncoding[UUID, SubscriptionId] { uuid =>
-      SubscriptionId.from(uuid) match
-        case Success(id)        => id
-        case Failure(exception) => throw exception
-    }
+    MappedEncoding[UUID, SubscriptionId](uuid => uuid.asSubscriptionId)
 
   implicit val nameEncoder: MappedEncoding[Name, String] =
     MappedEncoding[Name, String](identity)

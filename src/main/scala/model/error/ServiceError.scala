@@ -3,7 +3,9 @@ package model.error
 
 import zio.json.*
 
-import com.lamoroso.example.model.SubscriptionId
+import io.github.iltotore.iron.zioJson.given
+
+import model.RefinedTypes.*
 
 sealed trait ServiceError(message: String) extends Throwable
 

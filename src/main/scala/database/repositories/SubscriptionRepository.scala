@@ -13,11 +13,11 @@ import java.sql.SQLException
 
 import javax.sql.DataSource
 
-import database.QuillContext
 import io.github.iltotore.iron.*
+
+import database.QuillContext
 import model.RefinedTypes.*
 import model.Subscription
-import model.SubscriptionId
 
 final case class SubscriptionRepository(dataSource: DataSource):
   import QuillContext.*
