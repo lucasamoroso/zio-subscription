@@ -63,8 +63,8 @@ object QuillContext extends PostgresZioJdbcContext(SnakeCase):
         case Failure(exception) => throw exception
     }
 
-  implicit val nameEncoder: MappedEncoding[IronType[String, Name], String] =
-    MappedEncoding[IronType[String, Name], String](a => a)
+  implicit val nameEncoder: MappedEncoding[Name, String] =
+    MappedEncoding[Name, String](a => a)
 
-  implicit val nameDecoder: MappedEncoding[String, IronType[String, Name]] =
-    MappedEncoding[String, IronType[String, Name]](a => a.refine)
+  implicit val nameDecoder: MappedEncoding[String, Name] =
+    MappedEncoding[String, Name](a => a.refine)

@@ -41,7 +41,7 @@ final case class SubscriptionRepository(dataSource: DataSource):
     run(query[Subscription].filter(_.id == lift(subscriptionId)).delete.returning(r => r))
       .provideEnvironment(ZEnvironment(dataSource))
 
-  def update(id: SubscriptionId, name: String :| Name, email: String): IO[SQLException, Subscription] =
+  def update(id: SubscriptionId, name: Name, email: String): IO[SQLException, Subscription] =
     run(
       query[Subscription]
         .filter(_.id == lift(id))

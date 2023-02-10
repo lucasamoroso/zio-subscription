@@ -7,7 +7,7 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.zioJson.given
 import model.RefinedTypes.*
 
-final case class CreateSubscription(name: String :| Name, email: String)
+final case class CreateSubscription(name: Name, email: String)
 
 object CreateSubscription:
   /**

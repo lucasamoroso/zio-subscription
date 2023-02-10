@@ -31,4 +31,4 @@ object TapirComponents:
 
   implicit lazy val subscriptionIdSchema: Schema[SubscriptionId] = Schema.string
 
-  implicit lazy val nameSchema: Schema[IronType[String, Name]] = Schema.string
+  implicit lazy val nameSchema: Schema[Name] = Schema.string

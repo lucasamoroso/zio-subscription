@@ -56,7 +56,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
 
   def update(
     subscriptionId: SubscriptionId,
-    name: String :| Name,
+    name: Name,
     email: String
   ): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
     for {
