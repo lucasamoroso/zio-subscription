@@ -1,14 +1,15 @@
 package com.lamoroso.example
 package services
 
-import zio.UIO
-import zio.ZIO
+import zio.*
 import zio.ZLayer
 
 import java.sql.SQLException
 
 import com.lamoroso.example.model.SubscriptionId
 import database.repositories.SubscriptionRepository
+import io.github.iltotore.iron.*
+import model.RefinedTypes.*
 import model.Subscription
 import model.api.{CreateSubscription, UpdateSubscription}
 import model.error.ServiceError.DatabaseError
@@ -55,7 +56,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
 
   def update(
     subscriptionId: SubscriptionId,
-    name: String,
+    name: String :| Name,
     email: String
   ): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
     for {

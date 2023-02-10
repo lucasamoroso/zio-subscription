@@ -14,6 +14,8 @@ import java.sql.SQLException
 import javax.sql.DataSource
 
 import database.QuillContext
+import io.github.iltotore.iron.*
+import model.RefinedTypes.*
 import model.Subscription
 import model.SubscriptionId
 
@@ -39,7 +41,7 @@ final case class SubscriptionRepository(dataSource: DataSource):
     run(query[Subscription].filter(_.id == lift(subscriptionId)).delete.returning(r => r))
       .provideEnvironment(ZEnvironment(dataSource))
 
-  def update(id: SubscriptionId, name: String, email: String): IO[SQLException, Subscription] =
+  def update(id: SubscriptionId, name: String :| Name, email: String): IO[SQLException, Subscription] =
     run(
       query[Subscription]
         .filter(_.id == lift(id))
