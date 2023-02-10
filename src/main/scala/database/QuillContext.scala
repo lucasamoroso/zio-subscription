@@ -49,6 +49,6 @@ object QuillContext extends PostgresZioJdbcContext(SnakeCase):
   implicit val decodeUUID: MappedEncoding[String, UUID] = MappedEncoding[String, UUID](UUID.fromString(_))
 
   implicit val encodeUserId: MappedEncoding[SubscriptionId, UUID] =
-    MappedEncoding[SubscriptionId, UUID](_.id)
+    MappedEncoding[SubscriptionId, UUID](_.value)
   implicit val decodeUserId: MappedEncoding[UUID, SubscriptionId] =
     MappedEncoding[UUID, SubscriptionId](as => SubscriptionId(as))

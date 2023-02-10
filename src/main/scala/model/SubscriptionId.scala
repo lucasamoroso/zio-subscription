@@ -9,7 +9,7 @@ import scala.util.Try
 
 import java.util.UUID
 
-final case class SubscriptionId(id: UUID)
+final case class SubscriptionId(value: UUID)
 
 object SubscriptionId:
 
@@ -19,4 +19,4 @@ object SubscriptionId:
   def from(uuid: String) = Try(SubscriptionId(UUID.fromString(uuid)))
 
   implicit lazy val codec: JsonCodec[SubscriptionId] =
-    JsonCodec[UUID].transform(SubscriptionId(_), _.id)
+    JsonCodec[UUID].transform(SubscriptionId(_), _.value)

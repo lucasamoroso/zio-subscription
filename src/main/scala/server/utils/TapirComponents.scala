@@ -20,6 +20,6 @@ object TapirComponents:
       case Failure(f) => DecodeResult.Error(subscriptionId, f)
     }
 
-  def encode(subscriptionId: SubscriptionId): String = subscriptionId.id.toString()
+  def encode(subscriptionId: SubscriptionId): String = subscriptionId.value.toString()
 
   implicit val subscriptionIdCodec: PlainCodec[SubscriptionId] = Codec.string.mapDecode(decode)(encode)

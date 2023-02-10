@@ -33,7 +33,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
         .mapError(_ => DatabaseError())
 
   def get(subscriptionId: SubscriptionId): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
-    ZIO.logInfo(s"Looking for subscriptions ${subscriptionId.id}") *>
+    ZIO.logInfo(s"Looking for subscriptions ${subscriptionId.value}") *>
       repository
         .get(subscriptionId)
         .logError(s"There was an error on attempt to get subscription ${subscriptionId}")
