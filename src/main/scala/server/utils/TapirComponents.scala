@@ -6,6 +6,8 @@ import sttp.tapir.Codec.PlainCodec
 
 import scala.util.*
 
+import java.util.UUID
+
 import com.lamoroso.example.model.Subscription
 import com.lamoroso.example.model.SubscriptionId
 import com.lamoroso.example.model.error.ServiceError
@@ -14,12 +16,9 @@ import com.lamoroso.example.model.error.ServiceError.SubscriptionNotFoundError
 
 object TapirComponents:
 
-  def decode(subscriptionId: String): DecodeResult[SubscriptionId] =
-    SubscriptionId.from(subscriptionId) match {
-      case Success(v) => DecodeResult.Value(v)
-      case Failure(f) => DecodeResult.Error(subscriptionId, f)
-    }
+  implicit lazy val subscriptionIdCodec: Codec[String, SubscriptionId, CodecFormat.TextPlain] =
+    Codec.string.map[SubscriptionId](uuid => new SubscriptionId(UUID.fromString(uuid)))(subscriptionId =>
+      subscriptionId.value.toString()
+    )
 
-  def encode(subscriptionId: SubscriptionId): String = subscriptionId.value.toString()
-
-  implicit val subscriptionIdCodec: PlainCodec[SubscriptionId] = Codec.string.mapDecode(decode)(encode)
+  implicit lazy val subscriptionIdSchema: Schema[SubscriptionId] = Schema.string
