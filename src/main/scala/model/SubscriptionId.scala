@@ -5,7 +5,7 @@ import zio._
 
 import zio.json._
 
-import sttp.tapir.Schema
+import scala.util.Try
 
 import java.util.UUID
 
@@ -16,10 +16,7 @@ object SubscriptionId:
   /** Generates a Random UUID and wraps it in the SubscriptionId type */
   def random: UIO[SubscriptionId] = Random.nextUUID.map(SubscriptionId(_))
 
-  implicit val codec: JsonCodec[SubscriptionId] =
-    JsonCodec[UUID].transform(SubscriptionId(_), _.id)
+  def from(uuid: String) = Try(SubscriptionId(UUID.fromString(uuid)))
 
-  /**
-   * Endpoint documentation with tapir
-   */
-  implicit val schema: Schema[SubscriptionId] = Schema.derived[SubscriptionId]
+  implicit lazy val codec: JsonCodec[SubscriptionId] =
+    JsonCodec[UUID].transform(SubscriptionId(_), _.id)

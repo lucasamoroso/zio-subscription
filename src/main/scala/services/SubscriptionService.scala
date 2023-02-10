@@ -7,10 +7,12 @@ import zio.ZLayer
 
 import java.sql.SQLException
 
+import com.lamoroso.example.model.SubscriptionId
 import database.repositories.SubscriptionRepository
 import model.Subscription
 import model.api.CreateSubscription
 import model.error.ServiceError.DatabaseError
+import model.error.ServiceError.SubscriptionNotFoundError
 
 final case class SubscriptionService(repository: SubscriptionRepository):
   def create(createSubscription: CreateSubscription): ZIO[Any, DatabaseError, Subscription] =
@@ -29,6 +31,17 @@ final case class SubscriptionService(repository: SubscriptionRepository):
         .list()
         .logError(s"There was an error on attempt to list subscriptions")
         .mapError(_ => DatabaseError())
+
+  def get(subscriptionId: SubscriptionId): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
+    ZIO.logInfo(s"Looking for subscriptions ${subscriptionId.id}") *>
+      repository
+        .get(subscriptionId)
+        .logError(s"There was an error on attempt to get subscription ${subscriptionId}")
+        .mapError(_ => DatabaseError())
+        .flatMap {
+          case Some(value) => ZIO.succeed(value)
+          case None        => ZIO.fail(SubscriptionNotFoundError(subscriptionId))
+        }
 
 object SubscriptionService:
 
