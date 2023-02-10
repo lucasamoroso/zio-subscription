@@ -1,6 +1,7 @@
 package com.lamoroso.example
 package server.endpoints
 
+import sttp.tapir.Endpoint
 import sttp.tapir.generic.auto.*
 import sttp.tapir.json.zio.*
 import sttp.tapir.ztapir.*
@@ -16,7 +17,8 @@ import sttp.model.StatusCode
 
 object SubscriptionEndpoints:
   //Must be a lazy val
-  lazy val all = List(createSubscriptionEndpoint, listSubscriptionsEndpoint, getSubscriptionEndpoint)
+  lazy val all =
+    List(createSubscriptionEndpoint, listSubscriptionsEndpoint, getSubscriptionEndpoint, deleteSubscriptionEndpoint)
 
   val createSubscriptionEndpoint =
     endpoint.post
@@ -48,6 +50,21 @@ object SubscriptionEndpoints:
       )
       .description("Find a subscription that match the provided subscription id")
       .out(jsonBody[Subscription].description("The desired subscription if it was found in our systems"))
+      .errorOut(
+        oneOf(
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
+          oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[SubscriptionNotFoundError]))
+        )
+      )
+
+  val deleteSubscriptionEndpoint =
+    endpoint.delete
+      .in(
+        "subscriptions" / path[SubscriptionId]("subscriptionId")
+          .description("The subscription id from the subscription to delete")
+      )
+      .description("Delete the subscription that match the provided subscription id")
+      .out(jsonBody[Subscription].description("The deleted subscription if it was found in our systems"))
       .errorOut(
         oneOf(
           oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),

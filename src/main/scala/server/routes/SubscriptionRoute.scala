@@ -20,7 +20,8 @@ object SubscriptionRoute:
   lazy val all = List(
     createSubscriptionServerEndpoint,
     listSubscriptionsServerEndpoint,
-    getSubscriptionsServerEndpoint
+    getSubscriptionsServerEndpoint,
+    deleteSubscriptionsServerEndpoint
   )
 
   val createSubscriptionServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
@@ -45,4 +46,12 @@ object SubscriptionRoute:
         service       <- ZIO.service[SubscriptionService]
         subscriptions <- service.get(subscriptionId)
       } yield subscriptions)
+    }
+
+  val deleteSubscriptionsServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
+    deleteSubscriptionEndpoint.zServerLogic { subscriptionId =>
+      for {
+        service      <- ZIO.service[SubscriptionService]
+        subscription <- service.delete(subscriptionId)
+      } yield subscription
     }

@@ -34,6 +34,10 @@ final case class SubscriptionRepository(dataSource: DataSource):
       .provideEnvironment(ZEnvironment(dataSource))
       .map(_.headOption)
 
+  def delete(subscriptionId: SubscriptionId): ZIO[Any, SQLException, Subscription] =
+    run(query[Subscription].filter(_.id == lift(subscriptionId)).delete.returning(r => r))
+      .provideEnvironment(ZEnvironment(dataSource))
+
 object SubscriptionRepository:
 
   val layer = ZLayer.fromFunction(SubscriptionRepository.apply _)

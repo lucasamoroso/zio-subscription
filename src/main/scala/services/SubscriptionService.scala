@@ -43,6 +43,16 @@ final case class SubscriptionService(repository: SubscriptionRepository):
           case None        => ZIO.fail(SubscriptionNotFoundError(subscriptionId))
         }
 
+  def delete(subscriptionId: SubscriptionId): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
+    for {
+      _ <- ZIO.logInfo(s"Deleting subscription ${subscriptionId.value}")
+      _ <- get(subscriptionId)
+      subscription <- repository
+                        .delete(subscriptionId)
+                        .logError(s"There was an error on attempt to get subscription ${subscriptionId}")
+                        .mapError(_ => DatabaseError())
+    } yield subscription
+
 object SubscriptionService:
 
   val layer = ZLayer.fromFunction(SubscriptionService.apply _)
