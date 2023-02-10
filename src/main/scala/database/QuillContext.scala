@@ -15,14 +15,19 @@ import com.zaxxer.hikari.HikariDataSource
 import com.typesafe.config.ConfigFactory
 
 import scala.jdk.CollectionConverters.MapHasAsJava
+import scala.util.Failure
+import scala.util.Success
 
 import java.util.Properties
 import java.util.UUID
 
 import javax.sql.DataSource
 
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.all.*
+
 import com.lamoroso.example.config.{AppConfig, DatabaseConfig}
-import com.lamoroso.example.model.SubscriptionId
+import model.RefinedTypes.*
 
 object QuillContext extends PostgresZioJdbcContext(SnakeCase):
 
@@ -48,7 +53,20 @@ object QuillContext extends PostgresZioJdbcContext(SnakeCase):
   implicit val encodeUUID: MappedEncoding[UUID, String] = MappedEncoding[UUID, String](_.toString)
   implicit val decodeUUID: MappedEncoding[String, UUID] = MappedEncoding[String, UUID](UUID.fromString(_))
 
-  implicit val encodeUserId: MappedEncoding[SubscriptionId, UUID] =
-    MappedEncoding[SubscriptionId, UUID](_.value)
-  implicit val decodeUserId: MappedEncoding[UUID, SubscriptionId] =
-    MappedEncoding[UUID, SubscriptionId](as => SubscriptionId(as))
+  implicit val encodeSubscriptionIdUUID: MappedEncoding[SubscriptionId, UUID] =
+    MappedEncoding[SubscriptionId, UUID](v => UUID.fromString(v))
+
+  implicit val decodeSubscriptionIdUUID: MappedEncoding[UUID, SubscriptionId] =
+    MappedEncoding[UUID, SubscriptionId](uuid => uuid.asSubscriptionId)
+
+  implicit val nameEncoder: MappedEncoding[Name, String] =
+    MappedEncoding[Name, String](identity)
+
+  implicit val nameDecoder: MappedEncoding[String, Name] =
+    MappedEncoding[String, Name](_.refine)
+
+  implicit val emailEncoder: MappedEncoding[Email, String] =
+    MappedEncoding[Email, String](identity)
+
+  implicit val emailDecoder: MappedEncoding[String, Email] =
+    MappedEncoding[String, Email](_.refine)

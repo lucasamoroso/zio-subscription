@@ -12,6 +12,7 @@ This app uses:
   - [ZIO JSON](https://github.com/zio/zio-json) for JSON serialization
   - [ZIO Quill](https://github.com/zio/zio-quill) for SQL queries
   - [ZIO Config](https://github.com/zio/zio-config) for app configuration and documentation
+  - [Iron](https://github.com/Iltotore/iron) for refined types
 ## Run the application
 
 1. Start the services 

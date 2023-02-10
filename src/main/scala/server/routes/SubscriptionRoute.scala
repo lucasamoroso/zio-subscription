@@ -9,6 +9,7 @@ import zio.json.*
 import sttp.tapir.ztapir.*
 
 import com.lamoroso.example.server.endpoints.SubscriptionEndpoints.*
+import model.RefinedTypes.*
 import model.Subscription
 import model.api.CreateSubscription
 import model.error.RequestError.*
@@ -42,26 +43,26 @@ object SubscriptionRoute:
     }
 
   val getSubscriptionsServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
-    getSubscriptionEndpoint.zServerLogic { subscriptionId =>
+    getSubscriptionEndpoint.zServerLogic { uuid =>
       (for {
         service       <- ZIO.service[SubscriptionService]
-        subscriptions <- service.get(subscriptionId)
+        subscriptions <- service.get(uuid.asSubscriptionId)
       } yield subscriptions)
     }
 
   val deleteSubscriptionsServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
-    deleteSubscriptionEndpoint.zServerLogic { subscriptionId =>
+    deleteSubscriptionEndpoint.zServerLogic { uuid =>
       for {
         service      <- ZIO.service[SubscriptionService]
-        subscription <- service.delete(subscriptionId)
+        subscription <- service.delete(uuid.asSubscriptionId)
       } yield subscription
     }
 
   val updateSubscriptionServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
-    updateSubscriptionEndpoint.zServerLogic { (subscriptionId, updateSubscription) =>
+    updateSubscriptionEndpoint.zServerLogic { (uuid, updateSubscription) =>
       for {
-        _ <- if (subscriptionId != updateSubscription.id) {
-               ZIO.fail(ParamMismatchError(subscriptionId.toString))
+        _ <- if (uuid.asSubscriptionId != updateSubscription.id) {
+               ZIO.fail(ParamMismatchError(uuid.toString))
              } else {
                ZIO.unit
              }

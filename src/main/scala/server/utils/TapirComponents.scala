@@ -3,22 +3,20 @@ package server.utils
 
 import sttp.tapir.*
 import sttp.tapir.Codec.PlainCodec
+import sttp.tapir.CodecFormat.TextPlain
 
 import scala.util.*
 
 import java.util.UUID
 
-import com.lamoroso.example.model.Subscription
-import com.lamoroso.example.model.SubscriptionId
-import com.lamoroso.example.model.error.ServiceError
-import com.lamoroso.example.model.error.ServiceError.DatabaseError
-import com.lamoroso.example.model.error.ServiceError.SubscriptionNotFoundError
+import io.github.iltotore.iron.*
+
+import com.lamoroso.example.model.RefinedTypes.*
 
 object TapirComponents:
 
-  implicit lazy val subscriptionIdCodec: Codec[String, SubscriptionId, CodecFormat.TextPlain] =
-    Codec.string.map[SubscriptionId](uuid => new SubscriptionId(UUID.fromString(uuid)))(subscriptionId =>
-      subscriptionId.value.toString()
-    )
-
   implicit lazy val subscriptionIdSchema: Schema[SubscriptionId] = Schema.string
+
+  implicit lazy val nameSchema: Schema[Name] = Schema.string
+
+  implicit lazy val emailSchema: Schema[Email] = Schema.string

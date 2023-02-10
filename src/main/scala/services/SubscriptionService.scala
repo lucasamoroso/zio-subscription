@@ -1,14 +1,15 @@
 package com.lamoroso.example
 package services
 
-import zio.UIO
-import zio.ZIO
+import zio.*
 import zio.ZLayer
 
 import java.sql.SQLException
 
-import com.lamoroso.example.model.SubscriptionId
+import io.github.iltotore.iron.*
+
 import database.repositories.SubscriptionRepository
+import model.RefinedTypes.*
 import model.Subscription
 import model.api.{CreateSubscription, UpdateSubscription}
 import model.error.ServiceError.DatabaseError
@@ -33,7 +34,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
         .mapError(_ => DatabaseError())
 
   def get(subscriptionId: SubscriptionId): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
-    ZIO.logInfo(s"Looking for subscriptions ${subscriptionId.value}") *>
+    ZIO.logInfo(s"Looking for subscriptions ${subscriptionId}") *>
       repository
         .get(subscriptionId)
         .logError(s"There was an error on attempt to get subscription ${subscriptionId}")
@@ -45,7 +46,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
 
   def delete(subscriptionId: SubscriptionId): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
     for {
-      _ <- ZIO.logInfo(s"Deleting subscription ${subscriptionId.value}")
+      _ <- ZIO.logInfo(s"Deleting subscription ${subscriptionId}")
       _ <- get(subscriptionId)
       subscription <- repository
                         .delete(subscriptionId)
@@ -55,8 +56,8 @@ final case class SubscriptionService(repository: SubscriptionRepository):
 
   def update(
     subscriptionId: SubscriptionId,
-    name: String,
-    email: String
+    name: Name,
+    email: Email
   ): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
     for {
       _ <- ZIO.logInfo(s"Updating subscription ${subscriptionId}")

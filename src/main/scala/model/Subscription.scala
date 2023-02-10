@@ -1,17 +1,24 @@
 package com.lamoroso.example
 package model
 
+import zio.Random
 import zio.UIO
 
 import zio.json.*
 
-import api.CreateSubscription
+import scala.util.Failure
+import scala.util.Success
 
-case class Subscription(id: SubscriptionId, name: String, email: String)
+import io.github.iltotore.iron.zioJson.given
+
+import api.CreateSubscription
+import model.RefinedTypes.*
+
+case class Subscription(id: SubscriptionId, name: Name, email: Email)
 
 object Subscription:
   def from(createSubscription: CreateSubscription): UIO[Subscription] =
-    SubscriptionId.random.map(id => Subscription(id, createSubscription.name, createSubscription.email))
+    Random.nextUUID.map(uuid => Subscription(uuid.asSubscriptionId, createSubscription.name, createSubscription.email))
 
   /**
    * Derives a JSON codec for the Subscription type allowing it to be
