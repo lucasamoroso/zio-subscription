@@ -1,6 +1,7 @@
 package com.lamoroso.example
 package database.repositories
 
+import zio.IO
 import zio.ZEnvironment
 import zio.ZIO
 import zio.ZLayer
@@ -37,6 +38,14 @@ final case class SubscriptionRepository(dataSource: DataSource):
   def delete(subscriptionId: SubscriptionId): ZIO[Any, SQLException, Subscription] =
     run(query[Subscription].filter(_.id == lift(subscriptionId)).delete.returning(r => r))
       .provideEnvironment(ZEnvironment(dataSource))
+
+  def update(id: SubscriptionId, name: String, email: String): IO[SQLException, Subscription] =
+    run(
+      query[Subscription]
+        .filter(_.id == lift(id))
+        .update(_.name -> lift(name), _.email -> lift(email))
+        .returning(s => s)
+    ).provideEnvironment(ZEnvironment(dataSource))
 
 object SubscriptionRepository:
 

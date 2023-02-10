@@ -10,7 +10,7 @@ import java.sql.SQLException
 import com.lamoroso.example.model.SubscriptionId
 import database.repositories.SubscriptionRepository
 import model.Subscription
-import model.api.CreateSubscription
+import model.api.{CreateSubscription, UpdateSubscription}
 import model.error.ServiceError.DatabaseError
 import model.error.ServiceError.SubscriptionNotFoundError
 
@@ -51,6 +51,21 @@ final case class SubscriptionService(repository: SubscriptionRepository):
                         .delete(subscriptionId)
                         .logError(s"There was an error on attempt to get subscription ${subscriptionId}")
                         .mapError(_ => DatabaseError())
+    } yield subscription
+
+  def update(
+    subscriptionId: SubscriptionId,
+    name: String,
+    email: String
+  ): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
+    for {
+      _ <- ZIO.logInfo(s"Updating subscription ${subscriptionId}")
+      _ <- get(subscriptionId)
+      subscription <-
+        repository
+          .update(subscriptionId, name, email)
+          .logError(s"There was an error on attempt to update subscription ${subscriptionId}")
+          .mapError(_ => DatabaseError())
     } yield subscription
 
 object SubscriptionService:

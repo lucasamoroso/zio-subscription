@@ -8,17 +8,23 @@ import sttp.tapir.ztapir.*
 
 import model.Subscription
 import model.SubscriptionId
-import model.api.CreateSubscription
+import model.api.{CreateSubscription, UpdateSubscription}
 import model.error.*
-import model.error.ServiceError.DatabaseError
-import model.error.ServiceError.SubscriptionNotFoundError
+import model.error.RequestError.*
+import model.error.ServiceError.*
 import server.utils.TapirComponents.*
 import sttp.model.StatusCode
 
 object SubscriptionEndpoints:
   //Must be a lazy val
   lazy val all =
-    List(createSubscriptionEndpoint, listSubscriptionsEndpoint, getSubscriptionEndpoint, deleteSubscriptionEndpoint)
+    List(
+      createSubscriptionEndpoint,
+      listSubscriptionsEndpoint,
+      getSubscriptionEndpoint,
+      deleteSubscriptionEndpoint,
+      updateSubscriptionEndpoint
+    )
 
   val createSubscriptionEndpoint =
     endpoint.post
@@ -48,7 +54,7 @@ object SubscriptionEndpoints:
         "subscriptions" / path[SubscriptionId]("subscriptionId")
           .description("The subscription id from the desired subscription")
       )
-      .description("Find a subscription that match the provided subscription id")
+      .description("Find a subscription matching with the provided subscription id")
       .out(jsonBody[Subscription].description("The desired subscription if it was found in our systems"))
       .errorOut(
         oneOf(
@@ -63,11 +69,32 @@ object SubscriptionEndpoints:
         "subscriptions" / path[SubscriptionId]("subscriptionId")
           .description("The subscription id from the subscription to delete")
       )
-      .description("Delete the subscription that match the provided subscription id")
+      .description("Delete the subscription matching with the provided subscription id")
       .out(jsonBody[Subscription].description("The deleted subscription if it was found in our systems"))
       .errorOut(
         oneOf(
           oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
           oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[SubscriptionNotFoundError]))
+        )
+      )
+
+  val updateSubscriptionEndpoint =
+    endpoint.put
+      .in(
+        "subscriptions" / path[SubscriptionId]("subscriptionId")
+          .description("The subscription id from the subscription to update")
+      )
+      .description("Updates the subscription matching with the provided subscription id")
+      .in(
+        jsonBody[UpdateSubscription].description(
+          "The new values desired for the subscription matching with the subscription id provided"
+        )
+      )
+      .out(jsonBody[Subscription].description("The updated subscription if it was found in our systems"))
+      .errorOut(
+        oneOf(
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
+          oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[SubscriptionNotFoundError])),
+          oneOfVariant(statusCode(StatusCode.BadRequest).and(jsonBody[ParamMismatchError]))
         )
       )

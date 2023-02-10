@@ -11,7 +11,7 @@ import sttp.tapir.ztapir.*
 import com.lamoroso.example.server.endpoints.SubscriptionEndpoints.*
 import model.Subscription
 import model.api.CreateSubscription
-import model.error.*
+import model.error.RequestError.*
 import services.SubscriptionService
 
 object SubscriptionRoute:
@@ -21,7 +21,8 @@ object SubscriptionRoute:
     createSubscriptionServerEndpoint,
     listSubscriptionsServerEndpoint,
     getSubscriptionsServerEndpoint,
-    deleteSubscriptionsServerEndpoint
+    deleteSubscriptionsServerEndpoint,
+    updateSubscriptionServerEndpoint
   )
 
   val createSubscriptionServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
@@ -53,5 +54,19 @@ object SubscriptionRoute:
       for {
         service      <- ZIO.service[SubscriptionService]
         subscription <- service.delete(subscriptionId)
+      } yield subscription
+    }
+
+  val updateSubscriptionServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
+    updateSubscriptionEndpoint.zServerLogic { (subscriptionId, updateSubscription) =>
+      for {
+        _ <- if (subscriptionId != updateSubscription.id) {
+               ZIO.fail(ParamMismatchError(subscriptionId.toString))
+             } else {
+               ZIO.unit
+             }
+        service <- ZIO.service[SubscriptionService]
+        subscription <-
+          service.update(updateSubscription.id, updateSubscription.name, updateSubscription.email)
       } yield subscription
     }
