@@ -1,12 +1,13 @@
 package com.lamoroso.example
 package model.api
 
-import zio.json.DeriveJsonCodec
-import zio.json.JsonCodec
+import zio.json.*
 
-import sttp.tapir.Schema
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.zioJson.given
+import model.RefinedTypes.*
 
-final case class CreateSubscription(name: String, email: String)
+final case class CreateSubscription(name: String :| Name, email: String)
 
 object CreateSubscription:
   /**
@@ -15,8 +16,3 @@ object CreateSubscription:
    */
   implicit val codec: JsonCodec[CreateSubscription] =
     DeriveJsonCodec.gen[CreateSubscription]
-
-  /**
-   * Endpoint documentation with tapir
-   */
-  implicit val schema: Schema[CreateSubscription] = Schema.derived[CreateSubscription]

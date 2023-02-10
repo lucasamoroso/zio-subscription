@@ -17,7 +17,7 @@ import com.lamoroso.example.model.error.ServiceError.SubscriptionNotFoundError
 object TapirComponents:
 
   implicit lazy val subscriptionIdCodec: Codec[String, SubscriptionId, CodecFormat.TextPlain] =
-    Codec.string.map[SubscriptionId](uuid => new SubscriptionId(UUID.fromString(uuid)))(subscriptionId =>
+    Codec.string.map[SubscriptionId](uuid => SubscriptionId.from(uuid))(subscriptionId =>
       subscriptionId.value.toString()
     )
 

@@ -10,6 +10,7 @@ val zioVersion        = "2.0.7"  // Scala library for asynchronous and concurren
 val zioConfigVersion  = "3.0.7"  // Configuration library for ZIO
 val hikariVersion     = "5.0.1"  // A JDBC connection pool
 val zioTapirVersion   = "1.2.8"  // Server, endpoint definition and documentation for ZIO
+val ironVersion       = "2.0.0"  //Refined types
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -41,6 +42,9 @@ lazy val root = (project in file("."))
       "org.fusesource.jansi"         % "jansi"                   % jansiVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server"   % zioTapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-json-zio"          % zioTapirVersion,
-      "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % zioTapirVersion
+      "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % zioTapirVersion,
+      "io.github.iltotore"          %% "iron"                    % ironVersion,
+      "io.github.iltotore"          %% "iron-zio"                % ironVersion,
+      "io.github.iltotore"          %% "iron-zio-json"           % ironVersion
     )
   )
