@@ -19,6 +19,9 @@ import server.routes.SubscriptionRoute
 import services.SubscriptionService
 
 object Main extends ZIOAppDefault:
+  
+  override val bootstrap =
+    removeDefaultLoggers >>> SLF4J.slf4j
 
   override def run: ZIO[Any, Any, Any] =
     ZIO
@@ -31,7 +34,5 @@ object Main extends ZIOAppDefault:
         QuillContext.dataSourceLayer,
         SubscriptionServer.serverConfigLayer,
         Server.live,
-        removeDefaultLoggers,
-        SLF4J.slf4j,
         configLayer_(AppConfig.layer)
       )
