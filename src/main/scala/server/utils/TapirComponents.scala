@@ -20,3 +20,6 @@ object TapirComponents:
   implicit lazy val nameSchema: Schema[Name] = Schema.string
 
   implicit lazy val emailSchema: Schema[Email] = Schema.string
+
+  implicit lazy val subscriptionIdCodec: Codec[String, SubscriptionId, CodecFormat.TextPlain] =
+    Codec.string.map[SubscriptionId](uuid => UUID.fromString(uuid).asSubscriptionId)(identity)

@@ -1,20 +1,19 @@
 package com.lamoroso.example
 package server.endpoints
 
+import sttp.model.StatusCode
 import sttp.tapir.Endpoint
 import sttp.tapir.generic.auto.*
 import sttp.tapir.json.zio.*
 import sttp.tapir.ztapir.*
 
-import java.util.UUID
-
+import model.RefinedTypes.*
 import model.Subscription
 import model.api.{CreateSubscription, UpdateSubscription}
 import model.error.*
 import model.error.RequestError.*
 import model.error.ServiceError.*
 import server.utils.TapirComponents.*
-import sttp.model.StatusCode
 
 object SubscriptionEndpoints:
   //Must be a lazy val
@@ -52,7 +51,7 @@ object SubscriptionEndpoints:
   val getSubscriptionEndpoint =
     endpoint.get
       .in(
-        "subscriptions" / path[UUID]("subscriptionId")
+        "subscriptions" / path[SubscriptionId]("subscriptionId")
           .description("The subscription id from the desired subscription")
       )
       .description("Find a subscription matching with the provided subscription id")
@@ -67,7 +66,7 @@ object SubscriptionEndpoints:
   val deleteSubscriptionEndpoint =
     endpoint.delete
       .in(
-        "subscriptions" / path[UUID]("subscriptionId")
+        "subscriptions" / path[SubscriptionId]("subscriptionId")
           .description("The subscription id from the subscription to delete")
       )
       .description("Delete the subscription matching with the provided subscription id")
@@ -82,7 +81,7 @@ object SubscriptionEndpoints:
   val updateSubscriptionEndpoint =
     endpoint.put
       .in(
-        "subscriptions" / path[UUID]("subscriptionId")
+        "subscriptions" / path[SubscriptionId]("subscriptionId")
           .description("The subscription id from the subscription to update")
       )
       .description("Updates the subscription matching with the provided subscription id")

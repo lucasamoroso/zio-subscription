@@ -43,26 +43,26 @@ object SubscriptionRoute:
     }
 
   val getSubscriptionsServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
-    getSubscriptionEndpoint.zServerLogic { uuid =>
+    getSubscriptionEndpoint.zServerLogic { subscriptionId =>
       (for {
         service       <- ZIO.service[SubscriptionService]
-        subscriptions <- service.get(uuid.asSubscriptionId)
+        subscriptions <- service.get(subscriptionId)
       } yield subscriptions)
     }
 
   val deleteSubscriptionsServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
-    deleteSubscriptionEndpoint.zServerLogic { uuid =>
+    deleteSubscriptionEndpoint.zServerLogic { subscriptionId =>
       for {
         service      <- ZIO.service[SubscriptionService]
-        subscription <- service.delete(uuid.asSubscriptionId)
+        subscription <- service.delete(subscriptionId)
       } yield subscription
     }
 
   val updateSubscriptionServerEndpoint: ZServerEndpoint[SubscriptionService, Any] =
-    updateSubscriptionEndpoint.zServerLogic { (uuid, updateSubscription) =>
+    updateSubscriptionEndpoint.zServerLogic { (subscriptionId, updateSubscription) =>
       for {
-        _ <- if (uuid.asSubscriptionId != updateSubscription.id) {
-               ZIO.fail(ParamMismatchError(uuid.toString))
+        _ <- if (subscriptionId != updateSubscription.id) {
+               ZIO.fail(ParamMismatchError(subscriptionId))
              } else {
                ZIO.unit
              }
