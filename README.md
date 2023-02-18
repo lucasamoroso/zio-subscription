@@ -1,8 +1,8 @@
 # Subscription application using ZIO
 
 This is a simple application that manages subscriptions requests:
-- Saves the subscription state in a database. [WIP]
-- Notify about subscription changes in Pulsar/Kafka. [TBD]
+- Saves the subscription state in a database.
+- Notify about subscription changes in Kafka. 
 
 My idea is just to learn more about ZIO, I'm using as a guideline [zio-petclinic](https://github.com/zio/zio-petclinic)
 
@@ -35,3 +35,8 @@ This app uses:
     ```shell
     reStop
     ```
+
+Once the application starts you can send requests to create/delete/update subscriptions and Kafka messages will be produced, in those cases, in a topic called `subscriptions` notifying the changes, you can check those messages with tools like [kcat](https://github.com/edenhill/kcat):
+```shell
+kcat -C -b localhost:29092 -t subscriptions
+```

@@ -45,6 +45,7 @@ lazy val root = (project in file("."))
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % zioTapirVersion,
       "io.github.iltotore"          %% "iron"                    % ironVersion,
       "io.github.iltotore"          %% "iron-zio"                % ironVersion,
-      "io.github.iltotore"          %% "iron-zio-json"           % ironVersion
+      "io.github.iltotore"          %% "iron-zio-json"           % ironVersion,
+      "dev.zio"                     %% "zio-kafka"               % zioVersion
     )
   )

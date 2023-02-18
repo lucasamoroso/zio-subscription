@@ -8,14 +8,19 @@ import java.sql.SQLException
 
 import io.github.iltotore.iron.*
 
+import com.lamoroso.example.config.AppConfig
+import com.lamoroso.example.kafka.SubscriptionsProducer
 import database.repositories.SubscriptionRepository
 import model.RefinedTypes.*
 import model.Subscription
 import model.api.{CreateSubscription, UpdateSubscription}
 import model.error.ServiceError.DatabaseError
 import model.error.ServiceError.SubscriptionNotFoundError
-
-final case class SubscriptionService(repository: SubscriptionRepository):
+final case class SubscriptionService(
+  config: AppConfig,
+  repository: SubscriptionRepository,
+  producer: SubscriptionsProducer
+):
   def create(createSubscription: CreateSubscription): ZIO[Any, DatabaseError, Subscription] =
     for {
       subscription <- Subscription.from(createSubscription)
@@ -24,6 +29,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
              .create(subscription)
              .logError(s"There was an error on attempt to create subscription ${subscription.id}")
              .mapError(_ => DatabaseError())
+      _ <- producer.notify(subscription)
     } yield (subscription)
 
   def list(): ZIO[Any, DatabaseError, List[Subscription]] =
@@ -52,6 +58,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
                         .delete(subscriptionId)
                         .logError(s"There was an error on attempt to get subscription ${subscriptionId}")
                         .mapError(_ => DatabaseError())
+      _ <- producer.notify(subscription)
     } yield subscription
 
   def update(
@@ -67,6 +74,7 @@ final case class SubscriptionService(repository: SubscriptionRepository):
           .update(subscriptionId, name, email)
           .logError(s"There was an error on attempt to update subscription ${subscriptionId}")
           .mapError(_ => DatabaseError())
+      _ <- producer.notify(subscription)
     } yield subscription
 
 object SubscriptionService:

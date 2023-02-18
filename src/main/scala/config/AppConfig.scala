@@ -9,10 +9,10 @@ import java.io.File
 
 import config.{DatabaseConfig, ServerConfig}
 
-final case class AppConfig(server: ServerConfig, database: DatabaseConfig)
+final case class AppConfig(server: ServerConfig, database: DatabaseConfig, kafka: KafkaConfig)
 
 object AppConfig:
   val layer: ConfigDescriptor[AppConfig] = {
     val source = TypesafeConfigSource.fromHoconFile(new File("src/main/resources/application.conf"))
-    descriptor[AppConfig] from source
+    descriptor[AppConfig] mapKey (toKebabCase) from source
   }
