@@ -14,10 +14,10 @@ import database.error.DatabaseError.SQLError
 import model.RefinedTypes.*
 import model.Subscription
 import model.api.{CreateSubscription, UpdateSubscription}
-import model.error.*
-import model.error.ServiceError.*
 import server.http.error.RequestError.*
 import server.utils.TapirComponents.*
+import services.error.*
+import services.error.ServiceError.*
 
 object SubscriptionEndpoints:
   //Must be a lazy val

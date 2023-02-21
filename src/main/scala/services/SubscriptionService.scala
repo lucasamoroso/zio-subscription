@@ -16,7 +16,7 @@ import database.repositories.SubscriptionRepository
 import model.RefinedTypes.*
 import model.Subscription
 import model.api.{CreateSubscription, UpdateSubscription}
-import model.error.ServiceError.SubscriptionNotFoundError
+import services.error.ServiceError.SubscriptionNotFoundError
 
 final case class SubscriptionService(
   config: AppConfig,
