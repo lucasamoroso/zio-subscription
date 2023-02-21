@@ -11,15 +11,16 @@ import zio.logging.backend.SLF4J
 import zio.logging.removeDefaultLoggers
 
 import com.lamoroso.example.config.AppConfig
+import com.lamoroso.example.kafka.SubscriptionsProducer
 import database.Migrations
 import database.QuillContext
 import database.repositories.SubscriptionRepository
 import server.SubscriptionServer
-import server.routes.SubscriptionRoute
+import server.http.routes.SubscriptionRoute
 import services.SubscriptionService
 
 object Main extends ZIOAppDefault:
-  
+
   override val bootstrap =
     removeDefaultLoggers >>> SLF4J.slf4j
 
@@ -34,5 +35,6 @@ object Main extends ZIOAppDefault:
         QuillContext.dataSourceLayer,
         SubscriptionServer.serverConfigLayer,
         Server.live,
-        configLayer_(AppConfig.layer)
+        configLayer_(AppConfig.layer),
+        SubscriptionsProducer.layer
       )

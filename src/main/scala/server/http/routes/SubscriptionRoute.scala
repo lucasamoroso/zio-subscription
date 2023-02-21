@@ -1,5 +1,6 @@
 package com.lamoroso.example
 package server
+package http
 package routes
 
 import zio.*
@@ -8,13 +9,13 @@ import zio.json.*
 
 import sttp.tapir.ztapir.*
 
-import com.lamoroso.example.server.endpoints.SubscriptionEndpoints.*
+import com.lamoroso.example.server.http.endpoints.SubscriptionEndpoints.*
 import model.RefinedTypes.*
 import model.Subscription
 import model.api.CreateSubscription
-import model.error.RequestError.*
+import server.http.error.RequestError
+import server.http.error.RequestError.*
 import services.SubscriptionService
-
 object SubscriptionRoute:
 
   //Must be a lazy val

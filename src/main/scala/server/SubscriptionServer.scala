@@ -17,12 +17,12 @@ import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import sttp.tapir.ztapir.*
 
 import com.lamoroso.example.config.AppConfig
-import com.lamoroso.example.server.endpoints.SubscriptionEndpoints
-import com.lamoroso.example.server.routes.SubscriptionRoute
+import com.lamoroso.example.server.http.endpoints.SubscriptionEndpoints
+import com.lamoroso.example.server.http.routes.SubscriptionRoute
 import com.lamoroso.example.services.SubscriptionService
 import database.Migrations
-import server.endpoints.SubscriptionEndpoints.*
-import server.routes.SubscriptionRoute.createSubscriptionServerEndpoint
+import server.http.endpoints.SubscriptionEndpoints.*
+import server.http.routes.SubscriptionRoute.createSubscriptionServerEndpoint
 
 final case class SubscriptionServer(
   config: AppConfig,

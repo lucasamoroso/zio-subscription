@@ -1,5 +1,5 @@
 package com.lamoroso.example
-package model.error
+package server.http.error
 
 import zio.json.*
 
