@@ -16,7 +16,7 @@ import database.Migrations
 import database.QuillContext
 import database.repositories.SubscriptionRepository
 import server.SubscriptionServer
-import server.routes.SubscriptionRoute
+import server.http.routes.SubscriptionRoute
 import services.SubscriptionService
 
 object Main extends ZIOAppDefault:
