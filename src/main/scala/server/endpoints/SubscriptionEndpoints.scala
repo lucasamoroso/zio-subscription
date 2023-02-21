@@ -8,6 +8,7 @@ import sttp.tapir.json.zio.*
 import sttp.tapir.ztapir.*
 
 import com.lamoroso.example.kafka.KafkaError.KafkaProducerError
+import database.error.DatabaseError.SQLError
 import model.RefinedTypes.*
 import model.Subscription
 import model.api.{CreateSubscription, UpdateSubscription}
@@ -15,7 +16,6 @@ import model.error.*
 import model.error.RequestError.*
 import model.error.ServiceError.*
 import server.utils.TapirComponents.*
-
 object SubscriptionEndpoints:
   //Must be a lazy val
   lazy val all =
@@ -35,7 +35,7 @@ object SubscriptionEndpoints:
       .out(jsonBody[Subscription].description("The subscription saved in our system"))
       .errorOut(
         oneOf(
-          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[SQLError])),
           oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[KafkaProducerError]))
         )
       )
@@ -46,7 +46,7 @@ object SubscriptionEndpoints:
       .out(jsonBody[List[Subscription]].description("All subscriptions in our system"))
       .errorOut(
         oneOf(
-          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError]))
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[SQLError]))
         )
       )
 
@@ -60,7 +60,7 @@ object SubscriptionEndpoints:
       .out(jsonBody[Subscription].description("The desired subscription if it was found in our systems"))
       .errorOut(
         oneOf(
-          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[SQLError])),
           oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[SubscriptionNotFoundError]))
         )
       )
@@ -75,7 +75,7 @@ object SubscriptionEndpoints:
       .out(jsonBody[Subscription].description("The deleted subscription if it was found in our systems"))
       .errorOut(
         oneOf(
-          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[SQLError])),
           oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[SubscriptionNotFoundError])),
           oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[KafkaProducerError]))
         )
@@ -96,7 +96,7 @@ object SubscriptionEndpoints:
       .out(jsonBody[Subscription].description("The updated subscription if it was found in our systems"))
       .errorOut(
         oneOf(
-          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[SQLError])),
           oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[SubscriptionNotFoundError])),
           oneOfVariant(statusCode(StatusCode.BadRequest).and(jsonBody[ParamMismatchError])),
           oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[KafkaProducerError]))

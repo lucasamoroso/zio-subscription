@@ -11,41 +11,42 @@ import io.github.iltotore.iron.*
 import com.lamoroso.example.config.AppConfig
 import com.lamoroso.example.kafka.KafkaError.KafkaProducerError
 import com.lamoroso.example.kafka.SubscriptionsProducer
+import database.error.DatabaseError.SQLError
 import database.repositories.SubscriptionRepository
 import model.RefinedTypes.*
 import model.Subscription
 import model.api.{CreateSubscription, UpdateSubscription}
-import model.error.ServiceError.DatabaseError
 import model.error.ServiceError.SubscriptionNotFoundError
+
 final case class SubscriptionService(
   config: AppConfig,
   repository: SubscriptionRepository,
   producer: SubscriptionsProducer
 ):
-  def create(createSubscription: CreateSubscription): ZIO[Any, DatabaseError | KafkaProducerError, Subscription] =
+  def create(createSubscription: CreateSubscription): ZIO[Any, SQLError | KafkaProducerError, Subscription] =
     for {
       subscription <- Subscription.from(createSubscription)
       _            <- ZIO.logInfo(s"Creating subscription ${subscription.id}")
       _ <- repository
              .create(subscription)
              .logError(s"There was an error on attempt to create subscription ${subscription.id}")
-             .mapError(_ => DatabaseError())
+             .mapError(_ => SQLError())
       _ <- producer.notify(subscription)
     } yield (subscription)
 
-  def list(): ZIO[Any, DatabaseError, List[Subscription]] =
+  def list(): ZIO[Any, SQLError, List[Subscription]] =
     ZIO.logInfo(s"Listing all subscriptions ") *>
       repository
         .list()
         .logError(s"There was an error on attempt to list subscriptions")
-        .mapError(_ => DatabaseError())
+        .mapError(_ => SQLError())
 
-  def get(subscriptionId: SubscriptionId): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
+  def get(subscriptionId: SubscriptionId): ZIO[Any, SQLError | SubscriptionNotFoundError, Subscription] =
     ZIO.logInfo(s"Looking for subscriptions ${subscriptionId}") *>
       repository
         .get(subscriptionId)
         .logError(s"There was an error on attempt to get subscription ${subscriptionId}")
-        .mapError(_ => DatabaseError())
+        .mapError(_ => SQLError())
         .flatMap {
           case Some(value) => ZIO.succeed(value)
           case None        => ZIO.fail(SubscriptionNotFoundError(subscriptionId))
@@ -53,14 +54,14 @@ final case class SubscriptionService(
 
   def delete(
     subscriptionId: SubscriptionId
-  ): ZIO[Any, DatabaseError | SubscriptionNotFoundError | KafkaProducerError, Subscription] =
+  ): ZIO[Any, SQLError | SubscriptionNotFoundError | KafkaProducerError, Subscription] =
     for {
       _ <- ZIO.logInfo(s"Deleting subscription ${subscriptionId}")
       _ <- get(subscriptionId)
       subscription <- repository
                         .delete(subscriptionId)
                         .logError(s"There was an error on attempt to get subscription ${subscriptionId}")
-                        .mapError(_ => DatabaseError())
+                        .mapError(_ => SQLError())
       _ <- producer.notify(subscription)
     } yield subscription
 
@@ -68,7 +69,7 @@ final case class SubscriptionService(
     subscriptionId: SubscriptionId,
     name: Name,
     email: Email
-  ): ZIO[Any, DatabaseError | SubscriptionNotFoundError | KafkaProducerError, Subscription] =
+  ): ZIO[Any, SQLError | SubscriptionNotFoundError | KafkaProducerError, Subscription] =
     for {
       _ <- ZIO.logInfo(s"Updating subscription ${subscriptionId}")
       _ <- get(subscriptionId)
@@ -76,7 +77,7 @@ final case class SubscriptionService(
         repository
           .update(subscriptionId, name, email)
           .logError(s"There was an error on attempt to update subscription ${subscriptionId}")
-          .mapError(_ => DatabaseError())
+          .mapError(_ => SQLError())
       _ <- producer.notify(subscription)
     } yield subscription
 
