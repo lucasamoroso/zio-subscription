@@ -10,12 +10,12 @@ import zio.kafka.serde.Serde
 import scala.util.control.NonFatal
 
 import com.lamoroso.example.config.AppConfig
+import com.lamoroso.example.kafka.KafkaError.KafkaProducerError
 import com.lamoroso.example.model.Subscription
-import model.error.ServiceError.DatabaseError
 import org.apache.kafka.clients.producer.RecordMetadata
 
 final case class SubscriptionsProducer(config: AppConfig, producer: Producer):
-  def notify(subscription: Subscription): ZIO[Any, DatabaseError, RecordMetadata] =
+  def notify(subscription: Subscription): ZIO[Any, KafkaProducerError, RecordMetadata] =
     ZIO.logInfo(s"Notifying change in subscription ${subscription.id}") *>
       producer
         .produceAsync[Any, String, Subscription](
@@ -32,9 +32,10 @@ final case class SubscriptionsProducer(config: AppConfig, producer: Producer):
               notify(subscription)
             }
         )
+        .logError(s"There was an error producing message from subscription ${subscription.id}. Retrying...")
         //If there was an error enqueueing  the record to the Producer's internal buffer retry up to 5 times
         .retry(Schedule.exponential(10.millis) && Schedule.recurs(5))
-        .mapError(_ => DatabaseError()) // TODO: Add new Error type
+        .mapError(_ => KafkaProducerError(s"There was an error processing subscription ${subscription.id}"))
 
 object SubscriptionsProducer:
   val layer = ZLayer.scoped {

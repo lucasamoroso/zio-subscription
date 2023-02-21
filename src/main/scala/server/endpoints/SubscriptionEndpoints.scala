@@ -7,6 +7,7 @@ import sttp.tapir.generic.auto.*
 import sttp.tapir.json.zio.*
 import sttp.tapir.ztapir.*
 
+import com.lamoroso.example.kafka.KafkaError.KafkaProducerError
 import model.RefinedTypes.*
 import model.Subscription
 import model.api.{CreateSubscription, UpdateSubscription}
@@ -34,7 +35,8 @@ object SubscriptionEndpoints:
       .out(jsonBody[Subscription].description("The subscription saved in our system"))
       .errorOut(
         oneOf(
-          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError]))
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[KafkaProducerError]))
         )
       )
   val listSubscriptionsEndpoint =
@@ -74,7 +76,8 @@ object SubscriptionEndpoints:
       .errorOut(
         oneOf(
           oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
-          oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[SubscriptionNotFoundError]))
+          oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[SubscriptionNotFoundError])),
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[KafkaProducerError]))
         )
       )
 
@@ -95,6 +98,7 @@ object SubscriptionEndpoints:
         oneOf(
           oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[DatabaseError])),
           oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[SubscriptionNotFoundError])),
-          oneOfVariant(statusCode(StatusCode.BadRequest).and(jsonBody[ParamMismatchError]))
+          oneOfVariant(statusCode(StatusCode.BadRequest).and(jsonBody[ParamMismatchError])),
+          oneOfVariant(statusCode(StatusCode.InternalServerError).and(jsonBody[KafkaProducerError]))
         )
       )

@@ -9,6 +9,7 @@ import java.sql.SQLException
 import io.github.iltotore.iron.*
 
 import com.lamoroso.example.config.AppConfig
+import com.lamoroso.example.kafka.KafkaError.KafkaProducerError
 import com.lamoroso.example.kafka.SubscriptionsProducer
 import database.repositories.SubscriptionRepository
 import model.RefinedTypes.*
@@ -21,7 +22,7 @@ final case class SubscriptionService(
   repository: SubscriptionRepository,
   producer: SubscriptionsProducer
 ):
-  def create(createSubscription: CreateSubscription): ZIO[Any, DatabaseError, Subscription] =
+  def create(createSubscription: CreateSubscription): ZIO[Any, DatabaseError | KafkaProducerError, Subscription] =
     for {
       subscription <- Subscription.from(createSubscription)
       _            <- ZIO.logInfo(s"Creating subscription ${subscription.id}")
@@ -50,7 +51,9 @@ final case class SubscriptionService(
           case None        => ZIO.fail(SubscriptionNotFoundError(subscriptionId))
         }
 
-  def delete(subscriptionId: SubscriptionId): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
+  def delete(
+    subscriptionId: SubscriptionId
+  ): ZIO[Any, DatabaseError | SubscriptionNotFoundError | KafkaProducerError, Subscription] =
     for {
       _ <- ZIO.logInfo(s"Deleting subscription ${subscriptionId}")
       _ <- get(subscriptionId)
@@ -65,7 +68,7 @@ final case class SubscriptionService(
     subscriptionId: SubscriptionId,
     name: Name,
     email: Email
-  ): ZIO[Any, DatabaseError | SubscriptionNotFoundError, Subscription] =
+  ): ZIO[Any, DatabaseError | SubscriptionNotFoundError | KafkaProducerError, Subscription] =
     for {
       _ <- ZIO.logInfo(s"Updating subscription ${subscriptionId}")
       _ <- get(subscriptionId)
